@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * </p>
  *
  * @author liehuo
- * @since 2023-02-08
+ * @since 2023-02-09
  */
 public interface IGengService extends IService<Geng> {
-
+    public void addByTagIds(Geng geng);
 }

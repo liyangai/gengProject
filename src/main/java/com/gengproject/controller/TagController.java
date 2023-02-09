@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  *
  * @author liehuo
- * @since 2023-02-08
+ * @since 2023-02-09
  */
 @RestController
 @RequestMapping("/tag")
 public class TagController {
-
 
 }
 

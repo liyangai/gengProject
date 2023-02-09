@@ -1,11 +1,11 @@
 package com.gengproject.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.Version;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
+import java.util.List;
+
+import com.gengproject.util.typeHandler.List2VarcharTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author liehuo
- * @since 2023-02-08
+ * @since 2023-02-09
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,7 +29,8 @@ public class Geng implements Serializable {
 
     private String resume;
 
-    private String tagIds;
+    @TableField(typeHandler = List2VarcharTypeHandler.class)
+    private List<Integer> tagIds;
 
     private String src;
 
@@ -37,13 +38,9 @@ public class Geng implements Serializable {
 
     private String description;
 
-    private String gengMsg1;
+    private Integer createTime;
 
-    private String gengMsg2;
-
-    private String gengMsg3;
-
-    private String gengMsg4;
+    private Integer updateTime;
 
     @TableLogic
     private Integer deleted;

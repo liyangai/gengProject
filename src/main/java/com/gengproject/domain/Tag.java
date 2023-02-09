@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
  * </p>
  *
  * @author liehuo
- * @since 2023-02-08
+ * @since 2023-02-09
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -37,13 +37,9 @@ public class Tag implements Serializable {
 
     private String description;
 
-    private String tagMsg1;
+    private Integer createTime;
 
-    private String tagMsg2;
-
-    private String tagMsg3;
-
-    private String tagMsg4;
+    private Integer updateTime;
 
     @TableLogic
     private Integer deleted;
