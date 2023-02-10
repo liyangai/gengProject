@@ -42,4 +42,9 @@ public class Result {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
+
+    public static Result getUnkonwnErrorResult(){
+        return new Result(Code.ERROR,null,"unknown error");
+    }
 }

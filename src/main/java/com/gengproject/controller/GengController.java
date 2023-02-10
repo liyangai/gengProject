@@ -1,24 +1,15 @@
 package com.gengproject.controller;
 
 
-import com.alibaba.druid.util.ListDG;
 import com.gengproject.domain.Geng;
 import com.gengproject.service.IGengService;
-import com.gengproject.util.exception.BusinessException;
 import com.gengproject.util.model.Code;
 import com.gengproject.util.model.Result;
-import org.apache.catalina.mapper.Mapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -37,10 +28,44 @@ public class GengController {
 
     @PostMapping
     public Result add(@RequestBody Geng geng){
-        geng.setId(16);
-        gengService.addByTagIds(geng);
-        return  null;
-//        return "success";
+        geng.setId(null);
+        boolean flag = gengService.save(geng);
+        return flag ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+    }
+
+//    @PostMapping
+//    public Result addByTagNames(@RequestBody Geng geng){
+//        return  Result.getUnkonwnErrorResult();
+//    }
+
+    @DeleteMapping("/{id}")
+    public Result delete(@PathVariable String id){
+        boolean flag = gengService.removeById(id);
+        return flag ? new Result(Code.SUCCESS,null): Result.getUnkonwnErrorResult();
+    }
+
+    @GetMapping("/{id}")
+    public Result getById(@PathVariable String id){
+        Geng geng = gengService.getById(id);
+        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+    }
+
+    @GetMapping("/test")
+    public Result getByTagIdsss(@RequestBody List<Integer> tagIds, @RequestParam Boolean isAdd){
+        if(isAdd == null){
+            isAdd = true;
+        }
+        List<Geng> geng = gengService.getByTagIds(tagIds,isAdd);
+        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+    }
+
+    @GetMapping()
+    public Result getByTagIds(@RequestBody List<Integer> tagIds, @RequestParam(value = "isAdd",required=false) Boolean isAdd){
+        if(isAdd == null){
+            isAdd = true;
+        }
+        List<Geng> geng = gengService.getByTagIds(tagIds,isAdd);
+        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 }
 

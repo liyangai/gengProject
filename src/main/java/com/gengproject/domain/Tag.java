@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.Version;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -29,9 +31,9 @@ public class Tag implements Serializable {
 
     private String tagName;
 
-    private String childIds;
+    private List<Integer> childIds;
 
-    private String parentId;
+    private Integer parentId;
 
     private String tagIcon;
 

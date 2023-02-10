@@ -3,6 +3,7 @@ package com.gengproject.util.model;
 public class Code {
 
     public static final Integer ERROR = 0;
+    public static final Integer SUCCESS = 1;
 
     public static final Integer SAVE_OK = 20011;
     public static final Integer DELETE_OK = 20021;

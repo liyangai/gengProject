@@ -3,6 +3,8 @@ package com.gengproject.service;
 import com.gengproject.domain.Geng;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -12,5 +14,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-02-09
  */
 public interface IGengService extends IService<Geng> {
-    public void addByTagIds(Geng geng);
+    public boolean addByTagIds(Geng geng);
+
+    /**
+     *
+     * @param tagIds
+     * @param isAnd 是否为交集
+     * @return
+     */
+    List<Geng> getByTagIds(List<Integer> tagIds,boolean isAnd);
 }

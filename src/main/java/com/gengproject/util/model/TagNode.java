@@ -15,7 +15,11 @@ public class TagNode extends Tag {
         this.setId(tag.getId());
         this.setTagName(tag.getTagName());
         this.setChildIds(tag.getChildIds());
-        this.setParentId(this.getParentId());
+        this.setParentId(tag.getParentId());
+        this.setCreateTime(tag.getCreateTime());
+        this.setUpdateTime(tag.getUpdateTime());
+        this.setTagIcon(tag.getTagIcon());
+        this.setDescription(tag.getDescription());
     }
 
     private List<TagNode> childrenNode;
@@ -31,6 +35,9 @@ public class TagNode extends Tag {
     }
 
     public void addChildrenNode(TagNode node) {
+        if(node == null){
+            return;
+        }
         if(this.childrenNode == null) {
             this.childrenNode = new ArrayList<TagNode>();
         }
