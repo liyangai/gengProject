@@ -31,8 +31,6 @@ public class Tag implements Serializable {
 
     private String tagName;
 
-    private List<Integer> childIds;
-
     private Integer parentId;
 
     private String tagIcon;

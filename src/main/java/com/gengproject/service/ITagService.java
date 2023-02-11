@@ -12,5 +12,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-02-09
  */
 public interface ITagService extends IService<Tag> {
+    boolean addTag(Tag tag);
 
+    public boolean updateTag(Tag tag);
+
+    boolean deleteTagById(Integer id);
 }
