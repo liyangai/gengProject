@@ -6,6 +6,8 @@ import com.gengproject.dao.GengDao;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.IGengService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gengproject.util.exception.BusinessException;
+import com.gengproject.util.model.Code;
 import com.gengproject.util.model.TagNode;
 import com.sun.istack.internal.NotNull;
 import com.sun.org.apache.xerces.internal.dom.ChildNode;
@@ -40,9 +42,31 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
 
     @Override
     public boolean addByTagIds(Geng geng) {
+
         int insert = gengDao.insert(geng);
         return insert == 1;
 
+    }
+
+    @Override
+    public boolean deleteById(Integer id){
+        Geng geng = gengDao.selectById(id);
+        if(geng == null){
+            throw  new BusinessException(Code.ERROR,"geng 不存在");
+        }
+        int flag = gengDao.deleteById(id);
+        return flag == 1 ;
+    }
+
+    @Override
+    public boolean modify (Geng geng){
+        Geng oldGeng = gengDao.selectById(geng.getId());
+        if(oldGeng == null){
+            throw  new BusinessException(Code.ERROR,"geng 不存在");
+        }
+        geng.setVersion(oldGeng.getVersion());
+        int flag = gengDao.updateById(geng);
+        return flag == 1 ;
     }
 
     /**

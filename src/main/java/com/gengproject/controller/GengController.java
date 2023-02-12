@@ -28,7 +28,7 @@ public class GengController {
 
     @PostMapping
     public Result add(@RequestBody Geng geng){
-        geng.setId(null);
+//        geng.setId(null);
         boolean flag = gengService.save(geng);
         return flag ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
@@ -39,8 +39,8 @@ public class GengController {
 //    }
 
     @DeleteMapping("/{id}")
-    public Result delete(@PathVariable String id){
-        boolean flag = gengService.removeById(id);
+    public Result delete(@PathVariable Integer id){
+        boolean flag = gengService.deleteById(id);
         return flag ? new Result(Code.SUCCESS,null): Result.getUnkonwnErrorResult();
     }
 

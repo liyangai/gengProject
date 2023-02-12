@@ -16,6 +16,10 @@ import java.util.List;
 public interface IGengService extends IService<Geng> {
     public boolean addByTagIds(Geng geng);
 
+    boolean deleteById(Integer id);
+
+    boolean modify(Geng geng);
+
     /**
      *
      * @param tagIds
