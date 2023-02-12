@@ -1,5 +1,6 @@
 package com.gengproject.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.gengproject.dao.TagDao;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.TagManagerService;
@@ -43,5 +44,13 @@ public class TagManagerServiceImpl implements TagManagerService {
         tagTree.setTagIdMap(tagIdMap);
         tagTree.setNodeList(nodeList);
         return  tagTree;
+    }
+
+    @Override
+    public Tag getByTagName(String name){
+        LambdaQueryWrapper<Tag> lqm = new LambdaQueryWrapper<>();
+        lqm.eq(Tag::getTagName,name);
+        Tag selectOne = tagDao.selectOne(lqm);
+        return selectOne;
     }
 }

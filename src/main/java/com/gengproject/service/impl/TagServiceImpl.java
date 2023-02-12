@@ -30,7 +30,7 @@ import java.util.List;
 public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagService {
 
     @Autowired
-    TagDao tagDao;
+     TagDao tagDao;
 
     @Autowired
     TagManagerService tagManagerService;
@@ -43,7 +43,7 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         if(tag.getTagName() == null || tag.getTagName() == ""){
             throw new BusinessException(Code.ERROR,"tag名不能为空");
         }
-        Tag selectOne = this.getByTagName(tag.getTagName());
+        Tag selectOne = tagManagerService.getByTagName(tag.getTagName());
         if(selectOne != null){
             throw new BusinessException(Code.ERROR,"tag名不能重复");
         }
@@ -58,7 +58,7 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         if(oldTag == null){
             throw new BusinessException(Code.ERROR,"tag不存在");
         }
-        Tag sameNameTag = this.getByTagName(tag.getTagName());
+        Tag sameNameTag = tagManagerService.getByTagName(tag.getTagName());
         if(sameNameTag != null && sameNameTag.getId() != tag.getId()){
             throw new BusinessException(Code.ERROR,"tag名已存在");
         }
@@ -88,12 +88,6 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         return  flag == 1;
     }
 
-    private Tag getByTagName(String name){
-        LambdaQueryWrapper<Tag> lqm = new LambdaQueryWrapper<>();
-        lqm.eq(Tag::getTagName,name);
-        Tag selectOne = tagDao.selectOne(lqm);
-        return selectOne;
-    }
 
     private List<Tag> getChildrenTag(Integer id){
         LambdaQueryWrapper<Tag> lqm = new LambdaQueryWrapper<>();

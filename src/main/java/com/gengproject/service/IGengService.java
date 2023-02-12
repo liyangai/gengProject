@@ -2,6 +2,7 @@ package com.gengproject.service;
 
 import com.gengproject.domain.Geng;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,9 @@ import java.util.List;
  */
 public interface IGengService extends IService<Geng> {
     public boolean addByTagIds(Geng geng);
+
+    @Transactional(rollbackFor=Exception.class)
+    boolean addByTagNames(Geng geng, List<String> tagNames);
 
     boolean deleteById(Integer id);
 

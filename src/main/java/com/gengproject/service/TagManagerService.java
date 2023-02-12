@@ -13,4 +13,6 @@ import java.util.List;
 public interface TagManagerService {
 
     public TagTree getTagTree();
+
+    Tag getByTagName(String name);
 }

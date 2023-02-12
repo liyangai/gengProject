@@ -6,6 +6,7 @@ import com.gengproject.dao.GengDao;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.IGengService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gengproject.service.ITagService;
 import com.gengproject.service.TagManagerService;
 import com.gengproject.util.exception.BusinessException;
 import com.gengproject.util.model.Code;
@@ -15,6 +16,7 @@ import com.sun.istack.internal.NotNull;
 import com.sun.org.apache.xerces.internal.dom.ChildNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -38,6 +40,9 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
     @Autowired
     TagManagerService tagManagerService;
 
+    @Autowired
+    ITagService tagService;
+
     private HashMap<Integer, TagNode> tagIdMap = new HashMap<>();
     private List<TagNode> nodeList = new ArrayList<TagNode>();
 
@@ -51,6 +56,30 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         int insert = gengDao.insert(geng);
         return insert == 1;
 
+    }
+
+    @Override
+    @Transactional(rollbackFor=Exception.class)
+    public boolean addByTagNames(Geng geng, List<String> tagNames){
+        List<Integer> idList = new ArrayList<>();
+        for(String tagName : tagNames){
+            Tag tag = tagManagerService.getByTagName(tagName);
+            if(tag == null){
+                Tag newTag = new Tag();
+                newTag.setTagName(tagName);
+                boolean flag = tagService.addTag(newTag);
+                if(flag){
+                    idList.add(newTag.getId());
+                }else {
+                    throw new BusinessException(Code.ERROR,"tag添加失败");
+                }
+            }else {
+                idList.add(tag.getId());
+            }
+        }
+        geng.setTagIds(idList);
+        int insert = gengDao.insert(geng);
+        return insert == 1;
     }
 
     @Override
