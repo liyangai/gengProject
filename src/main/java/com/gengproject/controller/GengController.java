@@ -38,6 +38,12 @@ public class GengController {
 //        return  Result.getUnkonwnErrorResult();
 //    }
 
+    @PutMapping
+    public Result put(@RequestBody Geng geng){
+        boolean flag = gengService.updateById(geng);
+        return flag ? new Result(Code.SUCCESS,null): Result.getUnkonwnErrorResult();
+    }
+
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id){
         boolean flag = gengService.deleteById(id);
@@ -64,7 +70,12 @@ public class GengController {
         if(isAdd == null){
             isAdd = true;
         }
-        List<Geng> geng = gengService.getByTagIds(tagIds,isAdd);
+        List<Geng> geng;
+        if(tagIds == null || tagIds.size() == 0){
+            geng = gengService.list();
+        }else {
+            geng = gengService.getByTagIds(tagIds,isAdd);
+        }
         return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 }

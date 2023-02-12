@@ -14,7 +14,6 @@ public class TagNode extends Tag {
     public TagNode(Tag tag){
         this.setId(tag.getId());
         this.setTagName(tag.getTagName());
-        this.setChildIds(tag.getChildIds());
         this.setParentId(tag.getParentId());
         this.setCreateTime(tag.getCreateTime());
         this.setUpdateTime(tag.getUpdateTime());

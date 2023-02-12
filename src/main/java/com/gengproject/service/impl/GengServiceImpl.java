@@ -6,9 +6,11 @@ import com.gengproject.dao.GengDao;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.IGengService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gengproject.service.TagManagerService;
 import com.gengproject.util.exception.BusinessException;
 import com.gengproject.util.model.Code;
 import com.gengproject.util.model.TagNode;
+import com.gengproject.util.model.TagTree;
 import com.sun.istack.internal.NotNull;
 import com.sun.org.apache.xerces.internal.dom.ChildNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
 
     @Autowired
     private TagDao tagDao;
+
+    @Autowired
+    TagManagerService tagManagerService;
 
     private HashMap<Integer, TagNode> tagIdMap = new HashMap<>();
     private List<TagNode> nodeList = new ArrayList<TagNode>();
@@ -156,7 +161,9 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         if(ids == null || ids.size() == 0){
             return newList;
         }
-        this.getTagTree();
+        TagTree tagTree = this.tagManagerService.getTagTree();
+        this.tagIdMap = tagTree.getTagIdMap();
+        this.nodeList = tagTree.getNodeList();
         for(Integer id : ids){
             if(!hasParent(id,ids)){
                 newList.add(id);
@@ -207,7 +214,9 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         if(ids == null || ids.size() == 0){
             return newList;
         }
-        this.getTagTree();
+        TagTree tagTree = this.tagManagerService.getTagTree();
+        this.tagIdMap = tagTree.getTagIdMap();
+        this.nodeList = tagTree.getNodeList();
         for(Integer id : ids){
             if(!hasParent(id,ids)){
                 newList.add(id);
@@ -242,32 +251,5 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         return  result;
     }
 
-    private void getTagTree() {
-        tagIdMap = new HashMap<>();
-        nodeList = new ArrayList<TagNode>();
-        List<Tag> tagList = tagDao.selectList(null);
-        if(tagList == null){
-            return ;
-        }
 
-        for(Tag tag : tagList){
-            TagNode tagNode = new TagNode(tag);
-            nodeList.add(tagNode);
-            tagIdMap.put(tagNode.getId(),tagNode);
-        }
-        for(TagNode node : nodeList){
-            TagNode parentNode = tagIdMap.get(node.getParentId());
-            if(parentNode != null){
-                node.setParentNode(parentNode);
-            }
-            List<Integer> childIds = node.getChildIds();
-            if(childIds == null){
-                continue;
-            }
-            for(Integer childId : childIds){
-                TagNode childNode = tagIdMap.get(childId);
-                node.addChildrenNode(childNode);
-            }
-        }
-    }
 }
