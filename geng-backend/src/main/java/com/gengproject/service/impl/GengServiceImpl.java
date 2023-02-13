@@ -9,11 +9,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gengproject.service.ITagService;
 import com.gengproject.service.TagManagerService;
 import com.gengproject.util.exception.BusinessException;
-import com.gengproject.util.model.Code;
+import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.TagNode;
 import com.gengproject.util.model.TagTree;
-import com.sun.istack.internal.NotNull;
-import com.sun.org.apache.xerces.internal.dom.ChildNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +69,7 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
                 if(flag){
                     idList.add(newTag.getId());
                 }else {
-                    throw new BusinessException(Code.ERROR,"tag添加失败");
+                    throw new BusinessException(HttpCode.ERROR,"tag添加失败");
                 }
             }else {
                 idList.add(tag.getId());
@@ -86,7 +84,7 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
     public boolean deleteById(Integer id){
         Geng geng = gengDao.selectById(id);
         if(geng == null){
-            throw  new BusinessException(Code.ERROR,"geng 不存在");
+            throw  new BusinessException(HttpCode.ERROR,"geng 不存在");
         }
         int flag = gengDao.deleteById(id);
         return flag == 1 ;
@@ -96,7 +94,7 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
     public boolean modify (Geng geng){
         Geng oldGeng = gengDao.selectById(geng.getId());
         if(oldGeng == null){
-            throw  new BusinessException(Code.ERROR,"geng 不存在");
+            throw  new BusinessException(HttpCode.ERROR,"geng 不存在");
         }
         geng.setVersion(oldGeng.getVersion());
         int flag = gengDao.updateById(geng);

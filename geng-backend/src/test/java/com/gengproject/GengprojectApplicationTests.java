@@ -29,13 +29,13 @@ class GengprojectApplicationTests {
     void testTess4J() throws TesseractException {
         ITesseract instance = new Tesseract();
         // 语言库位置
-        instance.setDatapath("D:\\test\\IdeaProjects\\gengProject\\src\\main\\resources\\javaResource\\tessdata-master");
+        instance.setDatapath("D:\\test\\IdeaProjects\\gengProject\\geng-backend\\src\\main\\resources\\javaResource\\tessdata-master");
         // 中英文库
-//        instance.setLanguage("eng+chi_sim");
+        instance.setLanguage("eng+chi_sim");
         // 简体中文库
-        instance.setLanguage("chi_sim");
+//        instance.setLanguage("chi_sim");
         // 待识别的图片路径
-        File imageLocation = new File("D:\\test\\IdeaProjects\\gengProject\\src\\main\\resources\\javaResource\\gengImages");
+        File imageLocation = new File("D:\\test\\IdeaProjects\\gengProject\\geng-backend\\src\\main\\resources\\javaResource\\gengImages");
         for (File image : imageLocation.listFiles()) {
             System.out.println(image.getName() + "---" + instance.doOCR(image));
         }

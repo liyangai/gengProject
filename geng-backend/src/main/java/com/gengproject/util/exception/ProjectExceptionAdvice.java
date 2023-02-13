@@ -1,7 +1,7 @@
 package com.gengproject.util.exception;
 
-import com.gengproject.util.model.Code;
-import com.gengproject.util.model.HttpMessage;
+import com.gengproject.util.model.constant.HttpCode;
+import com.gengproject.util.model.constant.HttpMessage;
 import com.gengproject.util.model.Result;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,7 +33,7 @@ public class ProjectExceptionAdvice {
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
         System.out.println(ex);
-        return new Result(Code.ERROR,null, HttpMessage.PARAMA_INVALID);
+        return new Result(HttpCode.ERROR,null, HttpMessage.PARAMA_INVALID);
     }
 
     //除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
@@ -43,6 +43,6 @@ public class ProjectExceptionAdvice {
         //发送消息给运维
         //发送邮件给开发人员,ex对象发送给开发人员
         System.out.println(ex);
-        return new Result(Code.SYSTEM_UNKNOW_ERR,null,"系统繁xxz忙，请稍后再试！");
+        return new Result(HttpCode.SYSTEM_UNKNOW_ERR,null,"系统繁xxz忙，请稍后再试！");
     }
 }

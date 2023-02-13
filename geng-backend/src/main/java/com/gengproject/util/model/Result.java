@@ -1,5 +1,7 @@
 package com.gengproject.util.model;
 
+import com.gengproject.util.model.constant.HttpCode;
+
 public class Result {
     private Object data;
     private Integer code;
@@ -45,6 +47,6 @@ public class Result {
 
 
     public static Result getUnkonwnErrorResult(){
-        return new Result(Code.ERROR,null,"unknown error");
+        return new Result(HttpCode.ERROR,null,"unknown error");
     }
 }

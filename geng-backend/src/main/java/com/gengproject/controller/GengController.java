@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gengproject.domain.Geng;
 import com.gengproject.service.IGengService;
 import com.gengproject.util.exception.BusinessException;
-import com.gengproject.util.model.Code;
+import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.Result;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +35,7 @@ public class GengController {
     public Result add(@RequestBody Geng geng){
         geng.setId(null);
         boolean flag = gengService.save(geng);
-        return flag ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
     @PostMapping("/addByTagNmes")
@@ -59,12 +57,12 @@ public class GengController {
 
 
         }catch (Exception e){
-            throw new BusinessException(Code.ERROR,"参数错误");
+            throw new BusinessException(HttpCode.ERROR,"参数错误");
         }
 
         boolean flag = gengService.addByTagNames(geng, tagNames);
 
-        return flag ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
 //    @PostMapping
@@ -75,7 +73,7 @@ public class GengController {
     @PutMapping
     public Result put(@RequestBody Geng geng){
         boolean flag = gengService.modify(geng);
-        return flag ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
     @DeleteMapping("/batchDelete")
@@ -93,7 +91,7 @@ public class GengController {
             results.add(result);
         }
 
-        return new Result(Code.SUCCESS,results);
+        return new Result(HttpCode.SUCCESS,results);
     }
 
 
@@ -106,13 +104,13 @@ public class GengController {
             System.out.println(e);
         }
 
-        return flag ? new Result(Code.SUCCESS,null): Result.getUnkonwnErrorResult();
+        return flag ? new Result(HttpCode.SUCCESS,null): Result.getUnkonwnErrorResult();
     }
 
     @GetMapping("/{id}")
     public Result getById(@PathVariable String id){
         Geng geng = gengService.getById(id);
-        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return geng != null ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
     @GetMapping("/test")
@@ -121,7 +119,7 @@ public class GengController {
             isAdd = true;
         }
         List<Geng> geng = gengService.getByTagIds(tagIds,isAdd);
-        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return geng != null ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
     @GetMapping()
@@ -135,7 +133,7 @@ public class GengController {
         }else {
             geng = gengService.getByTagIds(tagIds,isAdd);
         }
-        return geng != null ? new Result(Code.SUCCESS,geng): Result.getUnkonwnErrorResult();
+        return geng != null ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 }
 
