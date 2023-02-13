@@ -86,6 +86,23 @@
             <version>4.5.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.baidu.aip</groupId>
+            <artifactId>java-sdk</artifactId>
+            <version>4.16.14</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gitee.ts_ohos</groupId>
+            <artifactId>OkHttp3</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
