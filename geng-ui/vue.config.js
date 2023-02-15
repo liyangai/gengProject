@@ -14,8 +14,6 @@ module.exports = defineConfig({
       },
     },
   },
-  outputDir: "../geng-backend/src/main/resources/static",
-  // output: {
-  //   path: path.resolve(_dirname,'../geng-backend/src/main/resources/static/page')
-  // }
+  outputDir: "../geng-backend/src/main/resources/static/page",
+  publicPath: "./",
 });

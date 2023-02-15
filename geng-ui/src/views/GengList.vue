@@ -80,6 +80,12 @@
       </el-table>
     </div>
   </div>
+  <img alt="Vue logo" src="../assets/aa.jpg" />
+  <div class="bg"></div>
+  <img alt="Vue logo" :src="src" />
+  <div
+    :style="{ background: 'url(' + src + ')', backgroundSize: '100% 100%' }"
+  ></div>
 </template>
 
 <script lang="ts" setup>
@@ -89,6 +95,8 @@ import { commonInfo } from "@/common/commonInfo";
 import { Geng, GengNode } from "@/model/GengModel";
 import { Tag, TagNode } from "@/model/TagModel";
 import { reactive, ref } from "vue";
+
+const src = ref("/temimage/bb.jpg");
 
 const myMockTagList: Tag[] = mockTagList;
 const myMockGengList: Geng[] = mockGengList;
@@ -187,5 +195,11 @@ const globaInfo = reactive(commonInfo);
 .tag-item {
   margin-right: 15px;
   cursor: pointer;
+}
+
+.bg {
+  width: 500px;
+  height: 500px;
+  background: url(../assets/aa.jpg) center no-repeat;
 }
 </style>
