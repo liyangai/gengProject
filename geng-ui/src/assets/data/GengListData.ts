@@ -1,0 +1,95 @@
+import { Geng } from "./../../model/GengModel";
+import { GengType } from "./../../common/constant/GengType";
+
+export const mockGengList: Geng[] = [
+  {
+    id: 1,
+    resume: "geng1",
+    description:
+      "gengeng1geng1geng1geng1geng1gen\r\ng1genggengeng1geng1g\r\neng1geng1geng1geng1geng1geng1geng1geng1geng1geng1gen\r\ng1g11geng1geng1geng1geng1geng1geng1g1",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2],
+  },
+  {
+    id: 2,
+    resume: "geng2",
+    description: "geng2",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 3,
+    resume: "geng3",
+    description: "geng3",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 4,
+    resume: "geng4",
+    description: "geng4",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 5,
+    resume: "geng5",
+    description: "geng5",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 6,
+    resume: "geng6",
+    description: "geng6",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 7,
+    resume: "geng7",
+    description: "geng7",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 8,
+    resume: "geng8",
+    description: "geng8",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+
+  {
+    id: 9,
+    resume: "geng9",
+    description: "geng9",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 10,
+    resume: "geng10",
+    description: "geng10",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+  {
+    id: 11,
+    resume: "geng11",
+    description: "geng11",
+    src: "",
+    srcType: GengType.MANUAL_ADD,
+    tagIds: [3, 2],
+  },
+];

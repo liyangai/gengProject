@@ -1,17 +1,45 @@
 <template>
-  <el-input v-model="filterText" placeholder="Filter keyword" />
+  <div class="tag-container">
+    <el-input v-model="filterText" placeholder="Filter keyword" />
 
-  <el-tree
-    ref="treeRef"
-    class="filter-tree"
-    :data="tagTreeData"
-    :props="defaultProps"
-    default-expand-all
-    :filter-node-method="filterNode"
-  />
+    <el-tree
+      ref="treeRef"
+      class="filter-tree"
+      :data="tagTreeData"
+      :props="defaultProps"
+      default-expand-all
+      :filter-node-method="filterNode"
+    >
+      <template #default="{ node, data }">
+        <span class="custom-tree-node">
+          <div>
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                {{ node.label }}
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item>Add geng</el-dropdown-item>
+                  <el-dropdown-item>edit</el-dropdown-item>
+                  <el-dropdown-item>delete</el-dropdown-item>
+                  <el-dropdown-item>merge</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+          <span>
+            <el-button type="primary" @click.stop="append(data)" link
+              >Add</el-button
+            >
+          </span>
+        </span>
+      </template></el-tree
+    >
+  </div>
 </template>
 
 <script lang="ts" setup>
+import { mockTagList } from "@/assets/data/tagListData";
 import { API } from "@/common/axios";
 import { commonInfo } from "@/common/commonInfo";
 import { TagTypeConstant } from "@/common/constant/TagType";
@@ -20,79 +48,29 @@ import { Tag, TagNode } from "@/model/TagModel";
 import { ElTree, ElInput } from "element-plus";
 import { reactive, ref, watch } from "vue";
 
-console.log(process.env);
-
 const filterText = ref("");
 const treeRef = ref<InstanceType<typeof ElTree>>();
 
-const list: Tag[] = [
-  {
-    id: 1,
-    tagName: "tag1",
-    description: "tag1",
-    parentId: null,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-  {
-    id: 2,
-    tagName: "tag2",
-    description: "tag2",
-    parentId: 1,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-  {
-    id: 3,
-    tagName: "tag3",
-    description: "tag3",
-    parentId: 1,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-  {
-    id: 4,
-    tagName: "tag4",
-    description: "tag4",
-    parentId: null,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-  {
-    id: 5,
-    tagName: "tag5",
-    description: "tag5",
-    parentId: 4,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-  {
-    id: 6,
-    tagName: "tag6",
-    description: "tag6",
-    parentId: 4,
-    tagIcon: TagTypeConstant.COMMON,
-  },
-];
+const myMockTagList: Tag[] = mockTagList;
 
 const getTreeData = (list: Tag[]) => {
   const tagNodeList: TagNode[] = list.map((item) => {
-    return {
-      id: item.id,
-      label: item.tagName,
-      tag: item,
-      children: [],
-    };
+    return new TagNode(item);
   });
 
   const resultTagNodeList: TagNode[] = [];
 
   const tagTreeMap: Map<number, TagNode> = new Map<number, TagNode>();
   tagNodeList.forEach((item) => {
-    tagTreeMap.set(item.tag.id, item);
-    if (item.tag.parentId === null) {
+    tagTreeMap.set(item.id, item);
+    if (item.parentId === null) {
       resultTagNodeList.push(item);
     }
   });
 
   tagNodeList.forEach((item) => {
-    if (item.tag.parentId !== null) {
-      const parentNode = tagTreeMap.get(item.tag.parentId);
+    if (item.parentId !== null) {
+      const parentNode = tagTreeMap.get(item.parentId);
       if (parentNode != undefined) {
         parentNode.children.push(item);
       }
@@ -100,20 +78,20 @@ const getTreeData = (list: Tag[]) => {
   });
   return resultTagNodeList;
 };
-let tagTreeData: TagNode[] = reactive(getTreeData(list));
+let tagTreeData: TagNode[];
 const defaultProps = {
   children: "children",
-  label: "label",
+  label: "tagName",
 };
 
-API.get("/tag").then((res: any) => {
-  const httpResult: HttpResult<Tag[]> = res.data;
-  const tmepData = getTreeData(httpResult.data);
-  tagTreeData.length = 0;
-  tagTreeData.push(...tmepData);
-  // console.log(tagTreeData);
-  // tagTreeData = reactive(tmepData);
-});
+// API.get("/tag").then((res: any) => {
+//   const httpResult: HttpResult<Tag[]> = res.data;
+//   const tmepData = getTreeData(httpResult.data);
+//   tagTreeData.length = 0;
+//   tagTreeData.push(...tmepData);
+//   // console.log(tagTreeData);
+//   // tagTreeData = reactive(tmepData);
+// });
 
 watch(filterText, (val) => {
   treeRef.value?.filter(val);
@@ -122,10 +100,32 @@ watch(filterText, (val) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const filterNode: any = (value: string, data: TagNode): boolean => {
   if (!value) return true;
-  return data.label.includes(value);
+  return data.tagName.includes(value);
 };
 
-// tagTreeData = reactive(getTreeData(list));
+const append = (data: TagNode) => {
+  commonInfo.addSearchTag(data);
+};
+
+tagTreeData = reactive(getTreeData(myMockTagList));
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+}
+
+.tag-container {
+  height: 100%;
+  padding: 10px;
+}
+</style>

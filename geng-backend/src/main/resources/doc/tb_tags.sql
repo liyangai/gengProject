@@ -10,7 +10,8 @@ CREATE TABLE `tbl_tag`
     `updateTime` int(11) NOT NULL NOT NULL DEFAULT 0,
     `deleted`          int(2) NOT NULL DEFAULT 0,
     `version`          int(5) NOT NULL DEFAULT 1,
-    PRIMARY KEY (`id`) USING BTREE
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE INDEX name_index(tagName)
 ) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 

@@ -28,8 +28,8 @@
     </div>
     <div class="page-content">
       <el-row>
-        <el-col :span="8"><TagList></TagList></el-col>
-        <el-col :span="16"><GengList></GengList></el-col>
+        <el-col :span="6"><TagList></TagList></el-col>
+        <el-col :span="18"><GengList></GengList></el-col>
       </el-row>
     </div>
   </div>
