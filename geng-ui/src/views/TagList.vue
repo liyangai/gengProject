@@ -78,20 +78,20 @@ const getTreeData = (list: Tag[]) => {
   });
   return resultTagNodeList;
 };
-let tagTreeData: TagNode[];
+let tagTreeData: TagNode[] = reactive([]);
 const defaultProps = {
   children: "children",
   label: "tagName",
 };
 
-// API.get("/tag").then((res: any) => {
-//   const httpResult: HttpResult<Tag[]> = res.data;
-//   const tmepData = getTreeData(httpResult.data);
-//   tagTreeData.length = 0;
-//   tagTreeData.push(...tmepData);
-//   // console.log(tagTreeData);
-//   // tagTreeData = reactive(tmepData);
-// });
+API.get("/tag").then((res: any) => {
+  const httpResult: HttpResult<Tag[]> = res.data;
+  const tmepData = getTreeData(httpResult.data);
+  tagTreeData.length = 0;
+  tagTreeData.push(...tmepData);
+  // console.log(tagTreeData);
+  // tagTreeData = reactive(tmepData);
+});
 
 watch(filterText, (val) => {
   treeRef.value?.filter(val);
@@ -107,7 +107,7 @@ const append = (data: TagNode) => {
   commonInfo.addSearchTag(data);
 };
 
-tagTreeData = reactive(getTreeData(myMockTagList));
+// tagTreeData = reactive(getTreeData(myMockTagList));
 </script>
 
 <style lang="less" scoped>

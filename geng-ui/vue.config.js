@@ -1,4 +1,5 @@
 const { defineConfig } = require("@vue/cli-service");
+const path = require("path");
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
@@ -13,4 +14,8 @@ module.exports = defineConfig({
       },
     },
   },
+  outputDir: "../geng-backend/src/main/resources/static",
+  // output: {
+  //   path: path.resolve(_dirname,'../geng-backend/src/main/resources/static/page')
+  // }
 });
