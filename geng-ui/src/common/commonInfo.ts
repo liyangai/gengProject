@@ -5,6 +5,8 @@ const isCollapse = ref(true);
 
 const searchTags: TagNode[] = reactive([]);
 
+const gengItemDialogOpen = ref(false);
+
 export const commonInfo = {
   isCollapse,
   setIsCollapse: function (val: boolean) {
@@ -23,4 +25,5 @@ export const commonInfo = {
       searchTags.splice(index, 1);
     }
   },
+  gengItemDialogOpen: gengItemDialogOpen,
 };

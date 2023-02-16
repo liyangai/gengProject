@@ -13,23 +13,28 @@ export class Geng {
   public src: string;
   public srcType: string;
   public description: string;
+
+  static getEmptyObj = (): Geng => {
+    return new Geng({
+      id: 0,
+      tagIds: [],
+      resume: "",
+      src: "",
+      srcType: "",
+      description: "",
+    });
+  };
 }
 
-export class GengNode {
+export class GengNode extends Geng {
   constructor(obj: Geng) {
-    this.id = obj.id;
-    this.tagIds = obj.tagIds;
-    this.resume = obj.resume;
+    super(obj);
     this.tagNames = [];
-    this.src = obj.src;
-    this.srcType = obj.srcType;
-    this.description = obj.description;
   }
-  public id: number;
-  public resume: string;
-  public tagIds: number[];
+
+  static getEmptyObj = (): GengNode => {
+    return new GengNode(super.getEmptyObj());
+  };
+
   public tagNames: string[];
-  public src: string;
-  public srcType: string;
-  public description: string;
 }

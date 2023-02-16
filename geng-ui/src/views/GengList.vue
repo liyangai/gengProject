@@ -80,12 +80,11 @@
       </el-table>
     </div>
   </div>
-  <img alt="Vue logo" src="../assets/aa.jpg" />
-  <div class="bg"></div>
-  <img alt="Vue logo" :src="src" />
-  <div
-    :style="{ background: 'url(' + src + ')', backgroundSize: '100% 100%' }"
-  ></div>
+  <GengItem
+    v-if="commonInfo.gengItemDialogOpen.value"
+    :selectGeng="selectGeng"
+    :tagList="myMockTagList"
+  ></GengItem>
 </template>
 
 <script lang="ts" setup>
@@ -94,17 +93,17 @@ import { mockTagList } from "@/assets/data/tagListData";
 import { commonInfo } from "@/common/commonInfo";
 import { Geng, GengNode } from "@/model/GengModel";
 import { Tag, TagNode } from "@/model/TagModel";
-import { reactive, ref } from "vue";
+import { reactive, Ref, ref } from "vue";
+import GengItem from "./GengItem.vue";
 
-const src = ref("/temimage/bb.jpg");
-
-const myMockTagList: Tag[] = mockTagList;
+const myMockTagList: Tag[] = reactive(mockTagList);
 const myMockGengList: Geng[] = mockGengList;
 
 const gengTableData: GengNode[] = reactive([]);
 const multipleSelection = ref<GengNode[]>([]);
 
 const searchModel = "";
+let selectGeng = ref(GengNode.getEmptyObj());
 
 const selectSearchTags: TagNode[] = commonInfo.searchTags;
 
@@ -125,14 +124,14 @@ const getGengTableData = (tagList: Tag[], gengList: Geng[]): GengNode[] => {
   return result;
 };
 
-const i = ref("asda\nasdasd");
-
 //html 绑定函数
 const handleSelectionChange = (val: GengNode[]) => {
   multipleSelection.value = val;
 };
 
 const handleDetail = (index: number, row: GengNode) => {
+  selectGeng.value = row;
+  commonInfo.gengItemDialogOpen.value = true;
   console.log(index, row);
 };
 
@@ -150,8 +149,6 @@ const deleteTag = (tag: TagNode) => {
 //逻辑处理
 gengTableData.length = 0;
 gengTableData.push(...getGengTableData(myMockTagList, myMockGengList));
-
-const globaInfo = reactive(commonInfo);
 </script>
 
 <style lang="less">
@@ -195,11 +192,5 @@ const globaInfo = reactive(commonInfo);
 .tag-item {
   margin-right: 15px;
   cursor: pointer;
-}
-
-.bg {
-  width: 500px;
-  height: 500px;
-  background: url(../assets/aa.jpg) center no-repeat;
 }
 </style>
