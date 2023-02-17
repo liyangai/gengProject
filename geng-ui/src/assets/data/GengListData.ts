@@ -15,8 +15,8 @@ export const mockGengList: Geng[] = [
     id: 2,
     resume: "geng2",
     description: "geng2",
-    src: "",
-    srcType: GengType.MANUAL_ADD,
+    src: "../assets/aa.jpg",
+    srcType: GengType.AUTO_ADD,
     tagIds: [3, 2],
   },
   {

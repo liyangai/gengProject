@@ -84,6 +84,7 @@
     v-if="commonInfo.gengItemDialogOpen.value"
     :selectGeng="selectGeng"
     :tagList="myMockTagList"
+    @close="onClose"
   ></GengItem>
 </template>
 
@@ -99,6 +100,7 @@ import GengItem from "./GengItem.vue";
 const myMockTagList: Tag[] = reactive(mockTagList);
 const myMockGengList: Geng[] = mockGengList;
 
+let isAdd = true;
 const gengTableData: GengNode[] = reactive([]);
 const multipleSelection = ref<GengNode[]>([]);
 
@@ -130,12 +132,13 @@ const handleSelectionChange = (val: GengNode[]) => {
 };
 
 const handleDetail = (index: number, row: GengNode) => {
-  selectGeng.value = row;
-  commonInfo.gengItemDialogOpen.value = true;
   console.log(index, row);
 };
 
 const handleEdit = (index: number, row: GengNode) => {
+  isAdd = false;
+  selectGeng.value = row;
+  commonInfo.gengItemDialogOpen.value = true;
   console.log(index, row);
 };
 const handleDelete = (index: number, row: GengNode) => {
@@ -145,6 +148,8 @@ const handleDelete = (index: number, row: GengNode) => {
 const deleteTag = (tag: TagNode) => {
   commonInfo.removeTag(tag);
 };
+
+const onClose = (geng: Geng) => {};
 
 //逻辑处理
 gengTableData.length = 0;
@@ -177,7 +182,7 @@ gengTableData.push(...getGengTableData(myMockTagList, myMockGengList));
 }
 
 .button-container {
-  width: 200px;
+  width: 220px;
 }
 
 .geng-container {

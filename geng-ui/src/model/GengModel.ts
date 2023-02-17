@@ -16,7 +16,7 @@ export class Geng {
 
   static getEmptyObj = (): Geng => {
     return new Geng({
-      id: 0,
+      id: -1,
       tagIds: [],
       resume: "",
       src: "",

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogFormVisible" title="Shipping address">
+  <el-dialog v-model="dialogFormVisible" title="geng">
     <el-form :model="form">
       <el-row>
         <el-col :span="12">
@@ -16,16 +16,37 @@
               placeholder="Please Input"
               :select-when-unmatched="true"
               @select="handleSelect"
-              @change="handleChange"
             />
           </el-form-item>
+          <div class="slectTagList">
+            <el-tag
+              v-for="tag in form.tagNames"
+              :key="tag"
+              class="tag-item"
+              :type="getTagType(tag)"
+              @close="deleteTag(tag)"
+              closable
+            >
+              {{ tag }}
+            </el-tag>
+          </div>
+          <div class="image-container">
+            <img v-if="showImage()" :src="form.src" alt="" />
+            <img
+              v-if="showImage()"
+              :style="{ height: '200px' }"
+              @click="openImage()"
+              src="../assets/aa.jpg"
+              alt=""
+            />
+          </div>
         </el-col>
         <el-col :span="12"
           ><el-form-item label="desc" :label-width="formLabelWidth">
             <el-input
               v-model="form.description"
               autocomplete="off"
-              :rows="5"
+              :rows="10"
               type="textarea"
             /> </el-form-item
         ></el-col>
@@ -37,22 +58,38 @@
         <el-button type="primary" @click="confirm"> Confirm </el-button>
       </span>
     </template>
+
+    <el-dialog v-model="innerVisible" title="image">
+      <template #default>
+        <img src="../assets/aa.jpg" alt="" />
+      </template>
+    </el-dialog>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { API } from "@/common/axios";
 import { commonInfo } from "@/common/commonInfo";
+import { GengType } from "@/common/constant/GengType";
 import { TagTypeConstant } from "@/common/constant/TagType";
 import { Geng, GengNode } from "@/model/GengModel";
 import { HttpResult } from "@/model/HttpResultModel";
 import { Tag, TagNode } from "@/model/TagModel";
 import { ElTree, ElInput } from "element-plus";
-import { reactive, ref, watch, defineProps, withDefaults, Ref } from "vue";
+import {
+  reactive,
+  ref,
+  watch,
+  defineProps,
+  withDefaults,
+  defineEmits,
+} from "vue";
 
-let dialogFormVisible = reactive(commonInfo.gengItemDialogOpen);
+let dialogFormVisible = commonInfo.gengItemDialogOpen;
 
 let tagSearch = ref("");
+
+const innerVisible = ref(false);
 
 interface Props {
   selectGeng: GengNode;
@@ -65,10 +102,16 @@ const props = withDefaults(defineProps<Props>(), {
   selectGeng: () => GengNode.getEmptyObj(),
   labels: () => [],
 });
+
+const emit = defineEmits<{
+  (e: "close", geng: GengNode): void;
+}>();
+
 const form = reactive(Object.assign({}, props.selectGeng));
 
 const confirm = () => {
   dialogFormVisible.value = false;
+  emit("close", form);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,11 +127,43 @@ const querySearch = (queryString: string, cb: any) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleSelect = (item: any) => {
-  console.log(item);
+  if (!item) {
+    return;
+  }
+
+  let tagName = "";
+
+  if (item.tagName) {
+    tagName = item.tagName;
+  } else {
+    tagName = item.value;
+  }
+
+  tagName = tagName.trim();
+  if (tagName) {
+    deleteTag(tagName);
+    form.tagNames.push(tagName);
+  }
 };
 
-const handleChange = (item: string) => {
-  console.log(item);
+const deleteTag = (tagName: string) => {
+  const index = form.tagNames.findIndex((item) => item === tagName.trim());
+  if (index > -1) {
+    form.tagNames.splice(index, 1);
+  }
+};
+
+const getTagType = (tagName: string) => {
+  const index = props.tagList.findIndex((item) => item.tagName === tagName);
+  return index > -1 ? "" : "info";
+};
+
+const showImage = () => {
+  return form.srcType === GengType.AUTO_ADD;
+};
+
+const openImage = () => {
+  innerVisible.value = true;
 };
 </script>
 
@@ -109,5 +184,9 @@ const handleChange = (item: string) => {
 .tag-container {
   height: 100%;
   padding: 10px;
+}
+
+.tag-item {
+  margin-bottom: 10px;
 }
 </style>
