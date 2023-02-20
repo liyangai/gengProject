@@ -3,6 +3,8 @@ package com.gengproject.service;
 import com.gengproject.domain.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -13,6 +15,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ITagService extends IService<Tag> {
     boolean addTag(Tag tag);
+
+    boolean operateTagByTagName(Tag tag, String parentTagName, List<String> childrenNames);
 
     public boolean updateTag(Tag tag);
 

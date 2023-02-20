@@ -21,13 +21,27 @@ export class TagNode {
     this.tagIcon = obj.tagIcon;
     this.description = obj.description;
     this.children = [];
+    this.parentTagName = "";
+    this.childrenNames = [];
   }
   public id: number;
   public tagName: string;
   public parentId: number | null;
   public tagIcon: string;
   public description: string;
+  public parentTagName: string;
   public children: TagNode[];
+  public childrenNames: string[];
+
+  static getEmptyObj(): TagNode {
+    return new TagNode({
+      id: -1,
+      parentId: -1,
+      tagName: "",
+      tagIcon: "",
+      description: "",
+    });
+  }
 }
 
 // export interface TagNode {

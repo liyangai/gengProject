@@ -7,6 +7,7 @@ import com.gengproject.service.ITagService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gengproject.service.TagManagerService;
 import com.gengproject.util.exception.BusinessException;
+import com.gengproject.util.model.TagTree;
 import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.TagNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,61 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         }
         int flag = tagDao.insert(tag);
         return  flag == 1;
+    }
+
+    @Override
+    public boolean operateTagByTagName(Tag tag, String parentTagName, List<String> childrenNames){
+        if(tag.getId() ==null){
+            addTag(tag);
+        }else {
+            checkTagName(tag);
+        }
+        tag.setParentId(null);
+        Tag parent = getOrAddTagByName(parentTagName);
+        List<Tag> children = new ArrayList<>();
+        for (String childrenName : childrenNames) {
+            children.add(getOrAddTagByName(childrenName));
+        }
+
+
+
+
+        TagTree tagTree = tagManagerService.getTagTree();
+        HashMap<Integer, TagNode> tagIdMap = tagTree.getTagIdMap();
+        List<TagNode> nodeList = tagTree.getNodeList();
+
+
+        tag.setParentId(parent.getParentId());
+
+    }
+
+
+    public Tag getOrAddTagByName(String name){
+        if(name == null || name == ""){
+            throw new BusinessException(HttpCode.ERROR,"tag名不能为空");
+        }
+        Tag selectOne = tagManagerService.getByTagName(name);
+
+        if(selectOne == null){
+            selectOne = new Tag();
+            selectOne.setTagName(name);
+            tagDao.insert(selectOne);
+        }
+        return selectOne;
+    }
+
+    public void checkTagName(Tag tag){
+        if(tag.getTagName() == null || tag.getTagName() == ""){
+            throw new BusinessException(HttpCode.ERROR,"tag名不能为空");
+        }
+        Tag oldTag = tagDao.selectById(tag.getId());
+        if(oldTag == null){
+            throw new BusinessException(HttpCode.ERROR,"tag不存在");
+        }
+        Tag sameNameTag = tagManagerService.getByTagName(tag.getTagName());
+        if(sameNameTag != null && sameNameTag.getId() != tag.getId()){
+            throw new BusinessException(HttpCode.ERROR,"tag名已存在");
+        }
     }
 
     @Override

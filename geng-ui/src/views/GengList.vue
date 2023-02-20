@@ -149,11 +149,16 @@ const deleteTag = (tag: TagNode) => {
   commonInfo.removeTag(tag);
 };
 
-const onClose = (geng: Geng) => {};
+const onClose = (geng: Geng) => {
+  refreshGengList();
+};
 
-//逻辑处理
-gengTableData.length = 0;
-gengTableData.push(...getGengTableData(myMockTagList, myMockGengList));
+const refreshGengList = () => {
+  gengTableData.length = 0;
+  gengTableData.push(...getGengTableData(myMockTagList, myMockGengList));
+};
+
+refreshGengList();
 </script>
 
 <style lang="less">

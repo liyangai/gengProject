@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class TagController {
     @PostMapping
     public Result add(@RequestBody Tag tag){
         tag.setId(null);
-        boolean flag = tagService.addTag(tag);
+        boolean flag = tagService.operateTagByTagName(tag,"",new ArrayList<>());
         return flag ? new Result(HttpCode.SUCCESS,tag): Result.getUnkonwnErrorResult();
     }
 

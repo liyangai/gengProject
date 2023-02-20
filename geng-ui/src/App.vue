@@ -52,6 +52,8 @@ const handleClose = (key: string, keyPath: string[]) => {
 const handleToggle = () => {
   globaInfo.setIsCollapse(!globaInfo.isCollapse);
 };
+
+commonInfo.refreshTagNodeList();
 </script>
 
 <style scoped>

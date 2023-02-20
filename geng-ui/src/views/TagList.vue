@@ -19,8 +19,10 @@
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item>Add geng</el-dropdown-item>
-                  <el-dropdown-item>edit</el-dropdown-item>
+                  <el-dropdown-item @click="addTag()">Add Tag</el-dropdown-item>
+                  <el-dropdown-item @click="editTag(data)"
+                    >edit</el-dropdown-item
+                  >
                   <el-dropdown-item>delete</el-dropdown-item>
                   <el-dropdown-item>merge</el-dropdown-item>
                 </el-dropdown-menu>
@@ -35,6 +37,11 @@
         </span>
       </template></el-tree
     >
+    <TagItem
+      v-if="commonInfo.tagItemDialogOpen.value"
+      :selectedTag="selectedTag"
+      @close="onClose"
+    ></TagItem>
   </div>
 </template>
 
@@ -47,50 +54,25 @@ import { HttpResult } from "@/model/HttpResultModel";
 import { Tag, TagNode } from "@/model/TagModel";
 import { ElTree, ElInput } from "element-plus";
 import { reactive, ref, watch } from "vue";
+import TagItem from "./TagItem.vue";
 
 const filterText = ref("");
 const treeRef = ref<InstanceType<typeof ElTree>>();
 
 const myMockTagList: Tag[] = mockTagList;
 
-const getTreeData = (list: Tag[]) => {
-  const tagNodeList: TagNode[] = list.map((item) => {
-    return new TagNode(item);
-  });
+const tagNodeList: TagNode[] = commonInfo.tagNodeList;
 
-  const resultTagNodeList: TagNode[] = [];
+const selectedTag = ref(TagNode.getEmptyObj());
 
-  const tagTreeMap: Map<number, TagNode> = new Map<number, TagNode>();
-  tagNodeList.forEach((item) => {
-    tagTreeMap.set(item.id, item);
-    if (item.parentId === null) {
-      resultTagNodeList.push(item);
-    }
-  });
-
-  tagNodeList.forEach((item) => {
-    if (item.parentId !== null) {
-      const parentNode = tagTreeMap.get(item.parentId);
-      if (parentNode != undefined) {
-        parentNode.children.push(item);
-      }
-    }
-  });
-  return resultTagNodeList;
-};
-let tagTreeData: TagNode[] = reactive([]);
+let tagTreeData = ref<TagNode[]>([]);
 const defaultProps = {
   children: "children",
   label: "tagName",
 };
 
-API.get("/tag").then((res: any) => {
-  const httpResult: HttpResult<Tag[]> = res.data;
-  const tmepData = getTreeData(httpResult.data);
-  tagTreeData.length = 0;
-  tagTreeData.push(...tmepData);
-  // console.log(tagTreeData);
-  // tagTreeData = reactive(tmepData);
+watch(tagNodeList, () => {
+  tagTreeData.value = tagNodeList.filter((item) => item.parentId === null);
 });
 
 watch(filterText, (val) => {
@@ -105,6 +87,20 @@ const filterNode: any = (value: string, data: TagNode): boolean => {
 
 const append = (data: TagNode) => {
   commonInfo.addSearchTag(data);
+};
+
+const addTag = () => {
+  selectedTag.value = TagNode.getEmptyObj();
+  commonInfo.tagItemDialogOpen.value = true;
+};
+
+const editTag = (tag: TagNode) => {
+  commonInfo.tagItemDialogOpen.value = true;
+  selectedTag.value = tag;
+};
+
+const onClose = (tag: TagNode) => {
+  commonInfo.refreshTagNodeList();
 };
 
 // tagTreeData = reactive(getTreeData(myMockTagList));
