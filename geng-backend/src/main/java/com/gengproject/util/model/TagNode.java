@@ -50,4 +50,11 @@ public class TagNode extends Tag {
     public void setParentNode(TagNode parentNode) {
         this.parentNode = parentNode;
     }
+
+    public void removeChild(TagNode tagNode){
+        if(this.childrenNode == null){
+            return;
+        }
+        this.childrenNode.remove(tagNode);
+    }
 }

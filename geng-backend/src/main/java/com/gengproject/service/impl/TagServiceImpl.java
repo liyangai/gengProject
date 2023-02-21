@@ -12,6 +12,7 @@ import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.TagNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,8 +35,6 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
     @Autowired
     TagManagerService tagManagerService;
 
-    private HashMap<Integer, TagNode> tagIdMap = new HashMap<>();
-    private List<TagNode> nodeList = new ArrayList<TagNode>();
 
     @Override
     public boolean addTag(Tag tag){
@@ -50,29 +49,79 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         return  flag == 1;
     }
 
+    @Transactional(rollbackFor=Exception.class)
     @Override
     public boolean operateTagByTagName(Tag tag, String parentTagName, List<String> childrenNames){
+        Integer oldParentId = null;
         if(tag.getId() ==null){
             addTag(tag);
         }else {
-            checkTagName(tag);
+            oldParentId = checkTagName(tag).getParentId();
         }
+
         tag.setParentId(null);
+
         Tag parent = getOrAddTagByName(parentTagName);
         List<Tag> children = new ArrayList<>();
         for (String childrenName : childrenNames) {
             children.add(getOrAddTagByName(childrenName));
         }
-
-
-
-
         TagTree tagTree = tagManagerService.getTagTree();
+
+
         HashMap<Integer, TagNode> tagIdMap = tagTree.getTagIdMap();
-        List<TagNode> nodeList = tagTree.getNodeList();
+        List<TagNode> allNodeList = tagTree.getNodeList();
+
+        TagNode tagNode = tagIdMap.get(tag.getId());
+
+        TagNode oldParentNode = tagIdMap.get(oldParentId);
+        if(oldParentNode != null){
+            oldParentNode.removeChild(tagNode);
+        }
+
+        List<TagNode> childrenNodes = tagManagerService.removeTagChildren(children,tagTree);
+
+        //检查父tag是否合法
+        TagNode parentNode = tagIdMap.get(parent.getId());
+
+        if(parentNode.getId() == tagNode.getId()){
+            throw new BusinessException(HttpCode.ERROR,"父tag不能与此tag相同");
+        }
+
+        if(tagManagerService.hasParent(parentNode,new ArrayList<TagNode>(){{add(tagNode);}},tagIdMap,allNodeList)){
+            throw new BusinessException(HttpCode.ERROR,"父tag不能为此tag的子级");
+        }
 
 
-        tag.setParentId(parent.getParentId());
+        tag.setParentId(parent.getId());
+
+        int i = tagDao.updateById(tag);
+        if(i != 1){
+            throw new BusinessException(HttpCode.ERROR,"父tag修改失败");
+        }
+        tagNode.setParentId(parent.getId());
+        tagNode.setParentNode(parentNode);
+        parentNode.addChildrenNode(tagNode);
+
+        for (TagNode childNode : childrenNodes) {
+            if(childNode.getId() == tagNode.getId()){
+                throw new BusinessException(HttpCode.ERROR,"子tag不能与此tag相同");
+            }
+            if(tagManagerService.hasParent(tagNode,new ArrayList<TagNode>(){{add(childNode);}},tagIdMap,allNodeList)){
+                throw new BusinessException(HttpCode.ERROR,"子tag不能为此tag的父级,子tag名："+childNode.getTagName());
+            }
+        }
+
+
+        for (TagNode childrenNode : childrenNodes) {
+            childrenNode.setParentId(tag.getId());
+            int j = tagDao.updateById(childrenNode);
+            if(j != 1){
+                throw new BusinessException(HttpCode.ERROR,"子tag不能为此tag的父级,子tag名："+childrenNode.getTagName());
+            }
+        }
+
+        return true;
 
     }
 
@@ -91,7 +140,7 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         return selectOne;
     }
 
-    public void checkTagName(Tag tag){
+    public Tag checkTagName(Tag tag){
         if(tag.getTagName() == null || tag.getTagName() == ""){
             throw new BusinessException(HttpCode.ERROR,"tag名不能为空");
         }
@@ -103,6 +152,7 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
         if(sameNameTag != null && sameNameTag.getId() != tag.getId()){
             throw new BusinessException(HttpCode.ERROR,"tag名已存在");
         }
+        return oldTag;
     }
 
     @Override

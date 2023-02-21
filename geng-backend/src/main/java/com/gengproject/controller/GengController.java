@@ -60,9 +60,11 @@ public class GengController {
             throw new BusinessException(HttpCode.ERROR,"参数错误");
         }
 
-        boolean flag = gengService.addByTagNames(geng, tagNames);
+        return Result.getUnkonwnErrorResult();
 
-        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
+//        boolean flag = gengService.addByTagNames(geng, tagNames);
+//
+//        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
 //    @PostMapping

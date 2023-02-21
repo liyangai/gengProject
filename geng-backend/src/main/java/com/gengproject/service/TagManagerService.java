@@ -15,4 +15,12 @@ public interface TagManagerService {
     public TagTree getTagTree();
 
     Tag getByTagName(String name);
+
+
+    List<TagNode> removeTagChildren(List<Tag> tagNodes, TagTree tagTree);
+
+    //去除list中存在的子节点
+    List<TagNode> removeTagChildrenByIds(List<Integer> tgIds, TagTree tagTree);
+
+    boolean hasParent(TagNode childNode, List<TagNode> tagNodes, HashMap<Integer, TagNode> tagIdMap, List<TagNode> allNodeList);
 }

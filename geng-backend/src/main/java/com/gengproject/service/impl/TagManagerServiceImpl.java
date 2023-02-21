@@ -34,8 +34,9 @@ public class TagManagerServiceImpl implements TagManagerService {
             TagNode parentNode = tagIdMap.get(node.getParentId());
             if(parentNode != null){
                 node.setParentNode(parentNode);
+                parentNode.addChildrenNode(node);
             }
-            parentNode.addChildrenNode(node);
+
         }
 
         TagTree tagTree = new TagTree();
@@ -52,24 +53,25 @@ public class TagManagerServiceImpl implements TagManagerService {
         return selectOne;
     }
 
-    public List<TagNode> removeTagChildren(List<Tag> tagNodes){
+    @Override
+    public List<TagNode> removeTagChildren(List<Tag> tagNodes, TagTree tagTree){
         List<Integer> tagIds = new ArrayList<>();
         for (Tag tagNode : tagNodes) {
             tagIds.add(tagNode.getId());
         }
-        return removeTagChildrenByIds(tagIds);
+        return removeTagChildrenByIds(tagIds,tagTree);
 
     }
 
+    @Override
     //去除list中存在的子节点
-    public List<TagNode> removeTagChildrenByIds(List<Integer> tgIds){
+    public List<TagNode> removeTagChildrenByIds(List<Integer> tgIds, TagTree tagTree){
         List<TagNode> newList = new ArrayList<>();
         Set<Integer> ids = new HashSet<>();
         ids.addAll(tgIds);
         if(ids == null || ids.size() == 0){
             return newList;
         }
-        TagTree tagTree = getTagTree();
         HashMap<Integer, TagNode> tagIdMap = tagTree.getTagIdMap();
         List<TagNode> allNodeList = tagTree.getNodeList();
         List<TagNode> tagNodes = new ArrayList<>();
@@ -79,7 +81,6 @@ public class TagManagerServiceImpl implements TagManagerService {
                 tagNodes.add(tagNode);
             }
         }
-
         if(tagNodes == null || tagNodes.size() == 0){
             return newList;
         }
@@ -92,7 +93,16 @@ public class TagManagerServiceImpl implements TagManagerService {
         return newList;
     }
 
-    private boolean hasParent(TagNode childNode, List<TagNode> tagNodes, HashMap<Integer, TagNode> tagIdMap, List<TagNode> allNodeList) {
+    /**
+     * 检查tagNodes中是否有childNode的父组级
+     * @param childNode
+     * @param tagNodes
+     * @param tagIdMap
+     * @param allNodeList
+     * @return
+     */
+    @Override
+    public boolean hasParent(TagNode childNode, List<TagNode> tagNodes, HashMap<Integer, TagNode> tagIdMap, List<TagNode> allNodeList) {
         List<TagNode> allParent = this.getAllParent(childNode);
         return this.checkNodeInTags(allParent,tagNodes);
 
