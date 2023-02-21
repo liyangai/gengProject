@@ -56,27 +56,26 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
 
     }
 
-    @Override
     @Transactional(rollbackFor=Exception.class)
-    public boolean addByTagNames(Geng geng, List<String> tagNames){
+    public boolean opreateGengByTagNames(Geng geng, List<String> tagNames){
+        List<Tag> children = new ArrayList<>();
+        for (String childrenName : tagNames) {
+            children.add(tagManagerService.getOrAddTagByName(childrenName));
+        }
+        TagTree tagTree = tagManagerService.getTagTree();
+        List<TagNode> childrenNodes = tagManagerService.removeTagChildren(children,tagTree);
         List<Integer> idList = new ArrayList<>();
-        for(String tagName : tagNames){
-            Tag tag = tagManagerService.getByTagName(tagName);
-            if(tag == null){
-                Tag newTag = new Tag();
-                newTag.setTagName(tagName);
-                boolean flag = tagService.addTag(newTag);
-                if(flag){
-                    idList.add(newTag.getId());
-                }else {
-                    throw new BusinessException(HttpCode.ERROR,"tag添加失败");
-                }
-            }else {
-                idList.add(tag.getId());
-            }
+        for (TagNode childrenNode : childrenNodes) {
+            idList.add(childrenNode.getId());
         }
         geng.setTagIds(idList);
-        int insert = gengDao.insert(geng);
+        int insert = 0;
+        if(geng.getId() == null){
+            insert = gengDao.insert(geng);
+        }else {
+            checkGengExit(geng);
+            insert = gengDao.updateById(geng);
+        }
         return insert == 1;
     }
 
@@ -278,5 +277,12 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         return  result;
     }
 
+
+    private void checkGengExit(Geng geng){
+        Geng geng1 = gengDao.selectById(geng.getId());
+        if(geng1 == null){
+            throw new BusinessException(HttpCode.ERROR,"geng 不存在");
+        }
+    }
 
 }

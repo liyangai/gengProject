@@ -18,7 +18,7 @@ public interface IGengService extends IService<Geng> {
     public boolean addByTagIds(Geng geng);
 
     @Transactional(rollbackFor=Exception.class)
-    boolean addByTagNames(Geng geng, List<String> tagNames);
+    boolean opreateGengByTagNames(Geng geng, List<String> tagNames);
 
     boolean deleteById(Integer id);
 

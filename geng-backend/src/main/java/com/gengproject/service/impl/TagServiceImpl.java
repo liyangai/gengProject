@@ -61,10 +61,10 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
 
         tag.setParentId(null);
 
-        Tag parent = getOrAddTagByName(parentTagName);
+        Tag parent = tagManagerService.getOrAddTagByName(parentTagName);
         List<Tag> children = new ArrayList<>();
         for (String childrenName : childrenNames) {
-            children.add(getOrAddTagByName(childrenName));
+            children.add(tagManagerService.getOrAddTagByName(childrenName));
         }
         TagTree tagTree = tagManagerService.getTagTree();
 
@@ -126,19 +126,7 @@ public class TagServiceImpl extends ServiceImpl<TagDao, Tag> implements ITagServ
     }
 
 
-    public Tag getOrAddTagByName(String name){
-        if(name == null || name == ""){
-            throw new BusinessException(HttpCode.ERROR,"tag名不能为空");
-        }
-        Tag selectOne = tagManagerService.getByTagName(name);
 
-        if(selectOne == null){
-            selectOne = new Tag();
-            selectOne.setTagName(name);
-            tagDao.insert(selectOne);
-        }
-        return selectOne;
-    }
 
     public Tag checkTagName(Tag tag){
         if(tag.getTagName() == null || tag.getTagName() == ""){

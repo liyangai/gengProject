@@ -3,6 +3,7 @@ package com.gengproject.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gengproject.domain.Geng;
+import com.gengproject.domain.Tag;
 import com.gengproject.service.IGengService;
 import com.gengproject.util.exception.BusinessException;
 import com.gengproject.util.model.constant.HttpCode;
@@ -31,50 +32,48 @@ public class GengController {
     @Autowired
     IGengService gengService;
 
-    @PostMapping
-    public Result add(@RequestBody Geng geng){
+    @PostMapping()
+    public Result addByTagNames(@RequestBody String str){
+        ObjectMapper mapper = new ObjectMapper();
+        Geng geng = new Geng();
+        List<String> childrenNames;
+        try{
+            Map<String, Object> map = mapper.readValue(str, Map.class);
+            childrenNames = (List<String>) map.get("childrenTagNames");
+            Map<String, String> data =  (Map<String, String>)map.get("data");
+            geng.setResume(data.get("resume"));
+            geng.setDescription(data.get("description"));
+            geng.setSrc(data.get("src"));
+            geng.setSrcType(data.get("srcType"));
+        }catch (Exception e){
+            throw new BusinessException(HttpCode.ERROR,"参数错误");
+        }
         geng.setId(null);
-        boolean flag = gengService.save(geng);
+
+        boolean flag = gengService.opreateGengByTagNames(geng, childrenNames);
         return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
-    @PostMapping("/addByTagNmes")
-    public Result addByTagNames(@RequestBody String str, HttpServletRequest request){
-//        geng.setId(null);
-//        boolean flag = gengService.save(geng);
+
+    @PutMapping
+    public Result put(@RequestBody String str){
         ObjectMapper mapper = new ObjectMapper();
-        String tagName = request.getParameter("tagName");
-        Geng geng;
-        List<String> tagNames;
+        Geng geng = new Geng();
+        List<String> childrenNames;
         try{
-
             Map<String, Object> map = mapper.readValue(str, Map.class);
-            tagNames = (List<String>) map.get("tagNames");
-            String re =  (String)map.get("data");
-//            String re =  "{\"resume\":\"geng1\"}";
-
-            geng = mapper.readValue(re,Geng.class);
-
-
+            childrenNames = (List<String>) map.get("childrenTagNames");
+            Map<String, String> data =  (Map<String, String>)map.get("data");
+            geng.setResume(data.get("resume"));
+            geng.setDescription(data.get("description"));
+            geng.setSrc(data.get("src"));
+            geng.setId(Integer.parseInt(String.valueOf(data.get("id"))));
+            geng.setSrcType(data.get("srcType"));
         }catch (Exception e){
             throw new BusinessException(HttpCode.ERROR,"参数错误");
         }
 
-        return Result.getUnkonwnErrorResult();
-
-//        boolean flag = gengService.addByTagNames(geng, tagNames);
-//
-//        return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
-    }
-
-//    @PostMapping
-//    public Result addByTagNames(@RequestBody Geng geng){
-//        return  Result.getUnkonwnErrorResult();
-//    }
-
-    @PutMapping
-    public Result put(@RequestBody Geng geng){
-        boolean flag = gengService.modify(geng);
+        boolean flag = gengService.opreateGengByTagNames(geng, childrenNames);
         return flag ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 

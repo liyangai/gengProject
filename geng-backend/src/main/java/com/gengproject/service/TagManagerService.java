@@ -23,4 +23,6 @@ public interface TagManagerService {
     List<TagNode> removeTagChildrenByIds(List<Integer> tgIds, TagTree tagTree);
 
     boolean hasParent(TagNode childNode, List<TagNode> tagNodes, HashMap<Integer, TagNode> tagIdMap, List<TagNode> allNodeList);
+
+    Tag getOrAddTagByName(String name);
 }

@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.gengproject.dao.TagDao;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.TagManagerService;
+import com.gengproject.util.exception.BusinessException;
 import com.gengproject.util.model.TagNode;
 import com.gengproject.util.model.TagTree;
+import com.gengproject.util.model.constant.HttpCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -131,5 +133,20 @@ public class TagManagerServiceImpl implements TagManagerService {
             }
         }
         return  false;
+    }
+
+    @Override
+    public Tag getOrAddTagByName(String name){
+        if(name == null || name == ""){
+            throw new BusinessException(HttpCode.ERROR,"tag名不能为空");
+        }
+        Tag selectOne = getByTagName(name);
+
+        if(selectOne == null){
+            selectOne = new Tag();
+            selectOne.setTagName(name);
+            tagDao.insert(selectOne);
+        }
+        return selectOne;
     }
 }
