@@ -15,13 +15,12 @@ const tagNodeList = reactive<TagNode[]>([]);
 const refreshTagNodeList = () => {
   API.get("/tag")
     .then((res: any) => {
-      const httpResult: HttpResult<Tag[]> = res.data;
+      const httpResult: HttpResult<Tag[]> = res;
       tagNodeList.length = 0;
       tagNodeList.push(...getTagNodeList(httpResult.data));
     })
     .catch(() => {
       tagNodeList.length = 0;
-      tagNodeList.push(...getTagNodeList(mockTagList));
     });
 };
 
@@ -66,6 +65,14 @@ const removeTag = (tag: TagNode) => {
   }
 };
 
+export enum DialogType {
+  Add,
+  Modify,
+  Detail,
+}
+
+const currentDialogType = ref(DialogType.Add);
+
 export const commonInfo = {
   isCollapse,
   setIsCollapse,
@@ -76,4 +83,5 @@ export const commonInfo = {
   tagItemDialogOpen,
   tagNodeList,
   refreshTagNodeList,
+  currentDialogType,
 };

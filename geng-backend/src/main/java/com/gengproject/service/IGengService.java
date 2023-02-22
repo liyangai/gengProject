@@ -2,8 +2,10 @@ package com.gengproject.service;
 
 import com.gengproject.domain.Geng;
 import com.baomidou.mybatisplus.extension.service.IService;
+import net.sourceforge.tess4j.TesseractException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -22,8 +24,6 @@ public interface IGengService extends IService<Geng> {
 
     boolean deleteById(Integer id);
 
-    boolean modify(Geng geng);
-
     /**
      *
      * @param tagIds
@@ -31,4 +31,8 @@ public interface IGengService extends IService<Geng> {
      * @return
      */
     List<Geng> getByTagIds(List<Integer> tagIds,boolean isAnd);
+
+    void autoAddGeng() throws TesseractException;
+
+    void autoAddGengByBaidu() throws Exception;
 }

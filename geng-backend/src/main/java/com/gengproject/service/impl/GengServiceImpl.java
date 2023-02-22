@@ -1,5 +1,6 @@
 package com.gengproject.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gengproject.dao.TagDao;
 import com.gengproject.domain.Geng;
 import com.gengproject.dao.GengDao;
@@ -9,13 +10,23 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gengproject.service.ITagService;
 import com.gengproject.service.TagManagerService;
 import com.gengproject.util.exception.BusinessException;
+import com.gengproject.util.http.Base64Util;
+import com.gengproject.util.http.FileUtil;
+import com.gengproject.util.http.HttpUtil;
+import com.gengproject.util.model.constant.GengType;
 import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.TagNode;
 import com.gengproject.util.model.TagTree;
+import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -41,12 +52,6 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
     @Autowired
     ITagService tagService;
 
-    private HashMap<Integer, TagNode> tagIdMap = new HashMap<>();
-    private List<TagNode> nodeList = new ArrayList<TagNode>();
-
-    List<Geng> allGenglist = new ArrayList<>();
-
-    private HashMap<Integer, Geng> gengIdMap = new HashMap<>();
 
     @Override
     public boolean addByTagIds(Geng geng) {
@@ -89,17 +94,6 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         return flag == 1 ;
     }
 
-    @Override
-    public boolean modify (Geng geng){
-        Geng oldGeng = gengDao.selectById(geng.getId());
-        if(oldGeng == null){
-            throw  new BusinessException(HttpCode.ERROR,"geng 不存在");
-        }
-        geng.setVersion(oldGeng.getVersion());
-        int flag = gengDao.updateById(geng);
-        return flag == 1 ;
-    }
-
     /**
      *
      * @param tagIds
@@ -108,16 +102,17 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
      */
     @Override
     public List<Geng> getByTagIds(List<Integer> tagIds, boolean isAnd) {
-
-        List<Integer> newIds = this.removeChildrenTagIds(tagIds);
-        allGenglist = this.list();
-        this.gengIdMap = new HashMap<>();
+        TagTree tagTree = tagManagerService.getTagTree();
+        List<TagNode> childrenNodes = tagManagerService.removeTagChildrenByIds(tagIds,tagTree);
+        HashMap<Integer, TagNode> tagIdMap = tagTree.getTagIdMap();
+        List<Geng> allGenglist = this.list();
+        Map<Integer,Geng> gengIdMap = new HashMap<>();
         for(Geng geng : allGenglist){
-            this.gengIdMap.put(geng.getId(),geng);
+            gengIdMap.put(geng.getId(),geng);
         }
         List<Set<Integer>> GengIdsList = new ArrayList<>();
-        for(Integer newId : newIds){
-            GengIdsList.add(this.getGengIdsByOneTagId(newId));
+        for(TagNode childNode : childrenNodes){
+            GengIdsList.add(this.getGengIdsByOneTagId(childNode.getId(),tagIdMap,allGenglist));
         }
         List<Integer> resultIds = new ArrayList<>();
         if(isAnd){
@@ -144,7 +139,7 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
             Set<Integer> set = new HashSet<>();
             for(Set<Integer> gengIds : GengIdsList){
                 for(Integer gengId : gengIds){
-                    resultIds.add(gengId);
+                    set.add(gengId);
                 }
             }
             resultIds.addAll(set);
@@ -152,19 +147,21 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
 
         List<Geng> result = new ArrayList<>();
         for(Integer id : resultIds){
-            result.add(this.allGenglist.get(id));
+            result.add(gengIdMap.get(id));
         }
 
         return result;
     }
 
 
-    private Set<Integer> getGengIdsByOneTagId(Integer tagId){
-        TagNode parent = this.tagIdMap.get(tagId);
+
+
+    private Set<Integer> getGengIdsByOneTagId(Integer tagId,HashMap<Integer, TagNode> tagIdMap,List<Geng> allGenglist){
+        TagNode parent = tagIdMap.get(tagId);
         List<TagNode> allChildrenTags = this.getAllChildren(parent);
         allChildrenTags.add(parent);
         Set<Integer> result = new HashSet<>();
-        for(Geng geng : this.allGenglist){
+        for(Geng geng : allGenglist){
             List<Integer> tagIds = geng.getTagIds();
             if(tagIds == null){
                 continue;
@@ -179,89 +176,74 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         return result;
     }
 
+    @Override
+    public void autoAddGeng() throws TesseractException {
+        String baseDir = System.getProperty("user.dir");
+        String dataPath = baseDir + "\\src\\main\\resources\\javaResource\\tessdata-master";
+        String imageDirPath = baseDir + "\\src\\main\\resources\\static\\temimage";
+        ITesseract instance = new Tesseract();
+        // 语言库位置
+        instance.setDatapath(dataPath);
+        // 中英文库
+        instance.setLanguage("eng+chi_sim");
+        // 简体中文库
+//        instance.setLanguage("chi_sim");
+        // 待识别的图片路径
+        File imageLocation = new File(imageDirPath);
+        for (File image : imageLocation.listFiles()) {
+            String description = instance.doOCR(image);
+            Geng geng = new Geng();
+            geng.setDescription(description);
+            geng.setSrc(image.getName());
+            geng.setSrcType(GengType.AUTO_ADD);
+            Tag tag = tagManagerService.getOrAddTagByName(GengType.AUTO_ADD);
+            geng.setTagIds(new ArrayList<Integer>(){{add(tag.getId());}});
+            gengDao.insert(geng);
 
-    private List<Integer> removeChildrenTagIds(List<Integer> tgIds){
-        List<Integer> newList = new ArrayList<>();
-        Set<Integer> ids = new HashSet<>();
-        ids.addAll(tgIds);
-        if(ids == null || ids.size() == 0){
-            return newList;
-        }
-        TagTree tagTree = this.tagManagerService.getTagTree();
-        this.tagIdMap = tagTree.getTagIdMap();
-        this.nodeList = tagTree.getNodeList();
-        for(Integer id : ids){
-            if(!hasParent(id,ids)){
-                newList.add(id);
+            System.out.println(image.getName() + "---" + instance.doOCR(image));
+            System.out.println("-----------------------------------------------------");
+        };
+    }
+
+    @Override
+    public void autoAddGengByBaidu() throws Exception {
+        String baseDir = System.getProperty("user.dir");
+        String dataPath = baseDir + "\\src\\main\\resources\\javaResource\\tessdata-master";
+        String imageDirPath = baseDir + "\\src\\main\\resources\\static\\temimage";
+        String url = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic";
+        // 待识别的图片路径
+        File imageLocation = new File(imageDirPath);
+        for (File image : imageLocation.listFiles()) {
+            byte[] imgData = FileUtil.readFileByBytes(image.getPath());
+            String imgStr = Base64Util.encode(imgData);
+            String imgParam = URLEncoder.encode(imgStr, "UTF-8");
+
+            String param = "image=" + imgParam;
+
+            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+            String accessToken = "24.1df65347b34a0142ef47d1f59f88a568.2592000.1678884509.282335-30398225";
+
+            String result = HttpUtil.post(url, accessToken, param);
+            System.out.println(result);
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(result, Map.class);
+            List<Map<String,String>> list =  (List<Map<String,String>>)map.get("words_result");
+            StringBuilder resultString = new StringBuilder();
+            for(Map<String,String> item :list){
+                resultString.append(item.get("words"));
+                resultString.append("\n");
             }
-        }
-        return newList;
+            Geng geng = new Geng();
+            geng.setDescription(resultString.toString());
+            geng.setSrc(image.getName());
+            geng.setSrcType(GengType.AUTO_ADD);
+            Tag tag = tagManagerService.getOrAddTagByName(GengType.AUTO_ADD);
+            geng.setTagIds(new ArrayList<Integer>(){{add(tag.getId());}});
+            gengDao.insert(geng);
+            System.out.println(resultString);
+        };
     }
 
-
-    private boolean hasParent(Integer childId,Set<Integer> ids){
-        TagNode childNode = this.tagIdMap.get(childId);
-        if(childNode == null){
-            return false;
-        }
-        List<TagNode> allParent = this.getAllParent(childNode);
-        return this.checkNodeInTagIds(allParent,ids);
-    }
-
-    //获取所有父辈
-    private List<TagNode> getAllParent(TagNode node){
-
-        List<TagNode> result = new ArrayList<>();
-        TagNode parentNode = node.getParentNode();
-        if(parentNode == null){
-            return result;
-        }
-        result.add(parentNode);
-        result.addAll(getAllParent(parentNode));
-
-        return  result;
-    }
-
-    private boolean checkNodeInTagIds(List<TagNode> nodes, Set<Integer> ids){
-        for(Integer id : ids){
-            TagNode ch = nodes.stream().filter(tagNode -> tagNode.getId() == id).findFirst().orElse(null);
-            if(ch != null){
-                return true;
-            }
-        }
-        return  false;
-    }
-
-
-    private List<Integer> removeAncestorTagIds(List<Integer> tgIds){
-        Set<Integer> ids = new HashSet<>();
-        ids.addAll(tgIds);
-        List<Integer> newList = new ArrayList<>();
-        if(ids == null || ids.size() == 0){
-            return newList;
-        }
-        TagTree tagTree = this.tagManagerService.getTagTree();
-        this.tagIdMap = tagTree.getTagIdMap();
-        this.nodeList = tagTree.getNodeList();
-        for(Integer id : ids){
-            if(!hasParent(id,ids)){
-                newList.add(id);
-            }
-        }
-        return newList;
-    }
-
-
-
-
-    private boolean hasChild(Integer parentId,Set<Integer> ids){
-        TagNode parentNode = this.tagIdMap.get(parentId);
-        if(parentNode == null){
-            return false;
-        }
-        List<TagNode> allChildren = this.getAllChildren(parentNode);
-        return this.checkNodeInTagIds(allChildren,ids);
-    }
 
     //获取所有子辈
     private List<TagNode> getAllChildren(TagNode node){
@@ -282,6 +264,8 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
         Geng geng1 = gengDao.selectById(geng.getId());
         if(geng1 == null){
             throw new BusinessException(HttpCode.ERROR,"geng 不存在");
+        }else {
+            geng.setVersion(geng1.getVersion());
         }
     }
 

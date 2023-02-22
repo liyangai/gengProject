@@ -5,8 +5,8 @@
         <el-input v-model="searchModel" placeholder="Please input" />
       </div>
       <div class="button-container">
-        <el-button type="primary">添加</el-button>
-        <el-button type="primary">刷新</el-button>
+        <el-button type="primary" @click="addGeng">添加</el-button>
+        <el-button type="primary" @click="refreshGengList">刷新</el-button>
         <el-button type="primary">清空</el-button>
       </div>
       <div class="tag-container">
@@ -83,7 +83,6 @@
   <GengItem
     v-if="commonInfo.gengItemDialogOpen.value"
     :selectGeng="selectGeng"
-    :tagList="myMockTagList"
     @close="onClose"
   ></GengItem>
 </template>
@@ -91,16 +90,18 @@
 <script lang="ts" setup>
 import { mockGengList } from "@/assets/data/GengListData";
 import { mockTagList } from "@/assets/data/tagListData";
-import { commonInfo } from "@/common/commonInfo";
+import { API } from "@/common/axios";
+import { commonInfo, DialogType } from "@/common/commonInfo";
 import { Geng, GengNode } from "@/model/GengModel";
+import { HttpResult } from "@/model/HttpResultModel";
 import { Tag, TagNode } from "@/model/TagModel";
-import { reactive, Ref, ref } from "vue";
+import { ElMessageBox, ElMessage } from "element-plus";
+import { reactive, Ref, ref, watch } from "vue";
 import GengItem from "./GengItem.vue";
 
-const myMockTagList: Tag[] = reactive(mockTagList);
-const myMockGengList: Geng[] = mockGengList;
+const tagList: TagNode[] = commonInfo.tagNodeList;
+const gengList: Geng[] = reactive([]);
 
-let isAdd = true;
 const gengTableData: GengNode[] = reactive([]);
 const multipleSelection = ref<GengNode[]>([]);
 
@@ -109,8 +110,15 @@ let selectGeng = ref(GengNode.getEmptyObj());
 
 const selectSearchTags: TagNode[] = commonInfo.searchTags;
 
+watch(gengList, () => {
+  getGengTableData();
+});
+watch(tagList, () => {
+  getGengTableData();
+});
+
 //数据处理函数
-const getGengTableData = (tagList: Tag[], gengList: Geng[]): GengNode[] => {
+const getGengTableData = () => {
   const tagMap = new Map<number, string>();
   const result: GengNode[] = [];
   tagList.forEach((tag) => {
@@ -123,7 +131,8 @@ const getGengTableData = (tagList: Tag[], gengList: Geng[]): GengNode[] => {
     });
     result.push(gengNode);
   });
-  return result;
+  gengTableData.length = 0;
+  gengTableData.push(...result);
 };
 
 //html 绑定函数
@@ -135,13 +144,36 @@ const handleDetail = (index: number, row: GengNode) => {
   console.log(index, row);
 };
 
+const addGeng = () => {
+  commonInfo.currentDialogType.value = DialogType.Add;
+  selectGeng.value = GengNode.getEmptyObj();
+  commonInfo.gengItemDialogOpen.value = true;
+};
+
 const handleEdit = (index: number, row: GengNode) => {
-  isAdd = false;
+  commonInfo.currentDialogType.value = DialogType.Modify;
   selectGeng.value = row;
   commonInfo.gengItemDialogOpen.value = true;
   console.log(index, row);
 };
 const handleDelete = (index: number, row: GengNode) => {
+  ElMessageBox.confirm("确认删除geng: " + row.resume + " ?", "Warning", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    API.delete("/geng/" + row.id).then((res) => {
+      if (res === null) {
+        return;
+      }
+      refreshGengList();
+      ElMessage({
+        type: "success",
+        message: "删除成功",
+      });
+    });
+  });
+
   console.log(index, row);
 };
 
@@ -150,12 +182,21 @@ const deleteTag = (tag: TagNode) => {
 };
 
 const onClose = (geng: Geng) => {
+  commonInfo.refreshTagNodeList();
   refreshGengList();
 };
 
 const refreshGengList = () => {
-  gengTableData.length = 0;
-  gengTableData.push(...getGengTableData(myMockTagList, myMockGengList));
+  const searchIds = selectSearchTags.map((item) => item.id);
+  API.post("/geng/getByTagIds", searchIds)
+    .then((res: any) => {
+      const httpResult: HttpResult<Geng[]> = res;
+      gengList.length = 0;
+      gengList.push(...httpResult.data);
+    })
+    .catch(() => {
+      gengList.length = 0;
+    });
 };
 
 refreshGengList();

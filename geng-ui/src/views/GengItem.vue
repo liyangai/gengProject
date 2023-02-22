@@ -31,12 +31,11 @@
             </el-tag>
           </div>
           <div class="image-container">
-            <img v-if="showImage()" :src="form.src" alt="" />
             <img
               v-if="showImage()"
               :style="{ height: '200px' }"
               @click="openImage()"
-              src="../assets/aa.jpg"
+              :src="imageSrcPrefix + form.src"
               alt=""
             />
           </div>
@@ -61,7 +60,7 @@
 
     <el-dialog v-model="innerVisible" title="image">
       <template #default>
-        <img src="../assets/aa.jpg" alt="" />
+        <img :src="imageSrcPrefix + form.src" alt="" />
       </template>
     </el-dialog>
   </el-dialog>
@@ -89,6 +88,8 @@ let dialogFormVisible = commonInfo.gengItemDialogOpen;
 
 let tagSearch = ref("");
 
+const imageSrcPrefix = "/temimage/";
+
 const innerVisible = ref(false);
 const tagNodeList: TagNode[] = commonInfo.tagNodeList;
 interface Props {
@@ -108,16 +109,28 @@ const emit = defineEmits<{
 const form = reactive(Object.assign({}, props.selectGeng));
 
 const confirm = () => {
-  dialogFormVisible.value = false;
+  const body: any = {
+    data: form,
+    tagNames: form.tagNames,
+  };
+
   if (form.id === -1) {
-    API.post("/geng", form).then((res) => {
+    API.post("/geng", body).then((res) => {
+      if (res == null) {
+        return;
+      }
       console.log(res);
       emit("close", form);
+      dialogFormVisible.value = false;
     });
   } else {
-    API.post("/geng", form).then((res) => {
+    API.put("/geng", body).then((res) => {
+      if (res == null) {
+        return;
+      }
       console.log(res);
       emit("close", form);
+      dialogFormVisible.value = false;
     });
   }
 };
@@ -152,6 +165,7 @@ const handleSelect = (item: any) => {
     deleteTag(tagName);
     form.tagNames.push(tagName);
   }
+  tagSearch.value = "";
 };
 
 const deleteTag = (tagName: string) => {

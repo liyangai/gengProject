@@ -19,11 +19,13 @@
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="addTag()">Add Tag</el-dropdown-item>
+                  <el-dropdown-item @click="addTag()">Add</el-dropdown-item>
                   <el-dropdown-item @click="editTag(data)"
                     >edit</el-dropdown-item
                   >
-                  <el-dropdown-item>delete</el-dropdown-item>
+                  <el-dropdown-item @click="deleteTag(data)"
+                    >delete</el-dropdown-item
+                  >
                   <el-dropdown-item>merge</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -55,6 +57,7 @@ import { Tag, TagNode } from "@/model/TagModel";
 import { ElTree, ElInput } from "element-plus";
 import { reactive, ref, watch } from "vue";
 import TagItem from "./TagItem.vue";
+import { ElMessageBox, ElMessage } from "element-plus";
 
 const filterText = ref("");
 const treeRef = ref<InstanceType<typeof ElTree>>();
@@ -97,6 +100,24 @@ const addTag = () => {
 const editTag = (tag: TagNode) => {
   commonInfo.tagItemDialogOpen.value = true;
   selectedTag.value = tag;
+};
+const deleteTag = (tag: TagNode) => {
+  ElMessageBox.confirm("确认删除tag: " + tag.tagName + " ?", "Warning", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    API.delete("/tag/" + tag.id).then((res) => {
+      if (res === null) {
+        return;
+      }
+      commonInfo.refreshTagNodeList();
+      ElMessage({
+        type: "success",
+        message: "删除成功",
+      });
+    });
+  });
 };
 
 const onClose = (tag: TagNode) => {

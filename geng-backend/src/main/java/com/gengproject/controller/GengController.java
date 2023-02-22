@@ -39,7 +39,7 @@ public class GengController {
         List<String> childrenNames;
         try{
             Map<String, Object> map = mapper.readValue(str, Map.class);
-            childrenNames = (List<String>) map.get("childrenTagNames");
+            childrenNames = (List<String>) map.get("tagNames");
             Map<String, String> data =  (Map<String, String>)map.get("data");
             geng.setResume(data.get("resume"));
             geng.setDescription(data.get("description"));
@@ -62,7 +62,7 @@ public class GengController {
         List<String> childrenNames;
         try{
             Map<String, Object> map = mapper.readValue(str, Map.class);
-            childrenNames = (List<String>) map.get("childrenTagNames");
+            childrenNames = (List<String>) map.get("tagNames");
             Map<String, String> data =  (Map<String, String>)map.get("data");
             geng.setResume(data.get("resume"));
             geng.setDescription(data.get("description"));
@@ -123,7 +123,7 @@ public class GengController {
         return geng != null ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
     }
 
-    @GetMapping()
+    @PostMapping("/getByTagIds")
     public Result getByTagIds(@RequestBody List<Integer> tagIds, @RequestParam(value = "isAdd",required=false) Boolean isAdd){
         if(isAdd == null){
             isAdd = true;

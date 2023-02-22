@@ -1,5 +1,6 @@
 package com.gengproject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gengproject.service.IGengService;
 import com.gengproject.util.http.Base64Util;
 import com.gengproject.util.http.FileUtil;
 import com.gengproject.util.http.HttpUtil;
@@ -29,6 +30,9 @@ class GengprojectApplicationTests {
     @Autowired
     TagDao tagDac;
 
+    @Autowired
+    IGengService gengService;
+
 //    @Test
     void contextLoads() {
         Tag tag = new Tag() ;
@@ -52,6 +56,25 @@ class GengprojectApplicationTests {
         }
     }
 
+
+//    @Test
+    void testAutoAddgeng(){
+        try {
+            gengService.autoAddGeng();
+        } catch (TesseractException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    //    @Test
+    void testAutoAddgengByBaidu(){
+        try {
+            gengService.autoAddGengByBaidu();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 

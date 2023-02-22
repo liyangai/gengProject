@@ -41,7 +41,6 @@
               class="inline-input w-50"
               placeholder="Please Input"
               :select-when-unmatched="true"
-              @select="handleSelect"
             /> </el-form-item
         ></el-col>
       </el-row>
@@ -64,6 +63,7 @@ import { Geng, GengNode } from "@/model/GengModel";
 import { HttpResult } from "@/model/HttpResultModel";
 import { Tag, TagNode } from "@/model/TagModel";
 import { ElTree, ElInput, formProps } from "element-plus";
+import { fromPairs } from "lodash";
 import {
   reactive,
   ref,
@@ -96,15 +96,27 @@ const emit = defineEmits<{
 const form = reactive(Object.assign({}, props.selectedTag));
 
 const confirm = () => {
-  dialogFormVisible.value = false;
+  const body = {
+    data: form,
+    parentName: form.parentTagName,
+    childrenNames: form.childrenNames,
+  };
   if (form.id === -1) {
-    API.post("/tag", form).then((res) => {
+    API.post("/tag", body).then((res) => {
+      if (res == null) {
+        return;
+      }
       console.log(res);
+      dialogFormVisible.value = false;
       emit("close", form);
     });
   } else {
-    API.post("/tag", form).then((res) => {
+    API.put("/tag", body).then((res) => {
+      if (res == null) {
+        return;
+      }
       console.log(res);
+      dialogFormVisible.value = false;
       emit("close", form);
     });
   }

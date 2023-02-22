@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("tbl_geng")
+@TableName(value = "tbl_geng",autoResultMap = true)
 public class Geng implements Serializable {
 
     private static final long serialVersionUID = 1L;
