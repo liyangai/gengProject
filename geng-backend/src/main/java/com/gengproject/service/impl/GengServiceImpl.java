@@ -241,6 +241,7 @@ public class GengServiceImpl extends ServiceImpl<GengDao, Geng> implements IGeng
             geng.setTagIds(new ArrayList<Integer>(){{add(tag.getId());}});
             gengDao.insert(geng);
             System.out.println(resultString);
+            Thread.sleep(3*1000);
         };
     }
 

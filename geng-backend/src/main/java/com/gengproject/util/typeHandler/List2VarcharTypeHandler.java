@@ -33,7 +33,7 @@ public class List2VarcharTypeHandler implements TypeHandler<List<Integer>> {
 
     public List<Integer> getResult(ResultSet rs, String s) throws SQLException {
         String favs = rs.getString(s);
-        if (favs != null) {
+        if (favs != null && !favs.equals("")) {
             String[] strs = favs.split(",");
             List<Integer> list = new ArrayList<>();
             for (String str : strs){

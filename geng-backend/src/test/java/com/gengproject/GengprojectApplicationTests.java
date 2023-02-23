@@ -67,7 +67,7 @@ class GengprojectApplicationTests {
     }
 
 
-    //    @Test
+//        @Test
     void testAutoAddgengByBaidu(){
         try {
             gengService.autoAddGengByBaidu();
