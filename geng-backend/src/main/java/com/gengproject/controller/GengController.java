@@ -1,17 +1,24 @@
 package com.gengproject.controller;
 
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gengproject.domain.Geng;
 import com.gengproject.domain.Tag;
 import com.gengproject.service.IGengService;
 import com.gengproject.util.exception.BusinessException;
+import com.gengproject.util.model.ExportGeng;
 import com.gengproject.util.model.constant.HttpCode;
 import com.gengproject.util.model.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +142,33 @@ public class GengController {
             geng = gengService.getByTagIds(tagIds,isAdd);
         }
         return geng != null ? new Result(HttpCode.SUCCESS,geng): Result.getUnkonwnErrorResult();
+    }
+
+    @GetMapping("/export")
+    public void export(HttpServletResponse response) throws IOException {
+        setExcelRespProp(response, "会员列表");
+        List<Geng> memberList = gengService.list();
+        List<ExportGeng> list = new ArrayList<>();
+        for(Geng geng : memberList){
+            ExportGeng exportGeng = new ExportGeng();
+            exportGeng.setDesc(geng.getDescription());
+            exportGeng.setResume(geng.getResume());
+            list.add(exportGeng);
+        }
+
+        EasyExcel.write(response.getOutputStream())
+                .head(ExportGeng.class)
+                .excelType(ExcelTypeEnum.XLSX)
+                .sheet("会员列表")
+                .doWrite(list);
+       }
+
+
+    private void setExcelRespProp(HttpServletResponse response, String rawFileName) throws UnsupportedEncodingException {
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode(rawFileName, "UTF-8").replaceAll("\\+", "%20");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
     }
 }
 

@@ -1,5 +1,6 @@
 package com.gengproject.domain;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
@@ -27,6 +28,7 @@ public class Geng implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    @ExcelProperty("简称")
     private String resume;
 
     @TableField(typeHandler = List2VarcharTypeHandler.class)
@@ -36,6 +38,7 @@ public class Geng implements Serializable {
 
     private String srcType;
 
+    @ExcelProperty("描述")
     private String description;
 
     private Integer createTime;
