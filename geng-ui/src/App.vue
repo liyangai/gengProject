@@ -64,7 +64,7 @@ commonInfo.refreshTagNodeList();
 }
 
 .sider-bar {
-  width: 155px;
+  width: 155px;   
 }
 
 .sider-bar.collapse {
